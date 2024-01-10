@@ -11,13 +11,13 @@ class TaskManager {
 
 public:
     void addTask(const Task& task);
-    void removeTask(const std::string& description);
-    void updateTask(const std::string& description, const Task& updatedTask);
-    void markTaskCompleted(const std::string& description);
+    void removeTask(int taskId);
+    void updateTask(int taskId, const Task& updatedTask);
+    void markTaskCompleted(int taskId);
     void displayTasks() const;
     void displayDueTasks() const;
     void removeExpiredTasks();
-    void adjustTaskDeadline(const std::string& description, const std::chrono::system_clock::time_point& newDeadline);
+    void adjustTaskDeadline(int taskId, const std::chrono::system_clock::time_point& newDeadline);
 
 private:
     std::chrono::system_clock::time_point nextMondayMidnight();

@@ -20,47 +20,102 @@ int main() {
         } else if (command == "help") {
             printHelp();
         } else if (command == "add") {
-            std::string description, deadline, typeStr;
+            std::string description, deadline, typeStr;  
+            std::chrono::system_clock::time_point deadlineTp;
             Task::Type type;
-            std::cout << "Enter task description: ";
-            std::getline(std::cin, description);
-            std::cout << "Enter deadline (YYYY-MM-DD HH:MM): ";
-            std::getline(std::cin, deadline);
-            std::cout << "Enter task type (Day/Week/LongTerm): ";
-            std::getline(std::cin, typeStr);
-
-            if (typeStr == "Day") {
-                type = Task::Type::Day;
-            } else if (typeStr == "Week") {
-                type = Task::Type::Week;
-            } else {
-                type = Task::Type::LongTerm;
+            while (true) {
+                std::cout << "Enter task description: ";
+                std::getline(std::cin, description);
+                if (!description.empty()) {
+                    break;
+                }
+                std::cerr << "Error: Task description cannot be empty. Please enter a description." << std::endl;
             }
-            taskManager.addTask(Task(description, stringToTimePoint(deadline), false, type));
+            while (true) {
+                std::cout << "Enter deadline (YYYY-MM-DD HH:MM): ";
+                std::getline(std::cin, deadline);
+                try {
+                    deadlineTp = stringToTimePoint(deadline);
+                    break;
+                } catch (const std::runtime_error& e) {
+                    std::cerr << "Error: " << e.what() << ". Please enter a valid deadline." << std::endl;
+                }
+            }
+            while (true) {
+                std::cout << "Enter task type (Day/Week/LongTerm): ";
+                std::getline(std::cin, typeStr);
+
+                if (typeStr == "Day") {
+                    type = Task::Type::Day;
+                    break;
+                } else if (typeStr == "Week") {
+                    type = Task::Type::Week;
+                    break;
+                } else if (typeStr == "LongTerm") {
+                    type = Task::Type::LongTerm;
+                    break;
+                } else {
+                    std::cerr << "Error: Invalid task type. Choose from Day, Week, LongTerm." << std::endl;
+                }
+            }
+            taskManager.addTask(Task(description, deadlineTp, type, false));
         } else if (command == "remove") {
-            // Implement task removal logic
+            int taskId;
+            std::cout << "Enter task ID to remove: ";
+            std::cin >> taskId;
+            std::cin.ignore();
+            taskManager.removeTask(taskId);
         } else if (command == "update") {
-            std::string description, newDescription, newDeadline, newTypeStr;
-            Task::Type newType;
-            std::cout << "Enter current task description: ";
-            std::getline(std::cin, description);
-            std::cout << "Enter new task description: ";
-            std::getline(std::cin, newDescription);
-            std::cout << "Enter new deadline (YYYY-MM-DD HH:MM): ";
-            std::getline(std::cin, newDeadline);
-            std::cout << "Enter new task type (Day/Week/LongTerm): ";
-            std::getline(std::cin, newTypeStr);
+            int taskId;
+            std::cout << "Enter task ID to update: ";
+            std::cin >> taskId;
+            std::cin.ignore();
 
-            if (newTypeStr == "Day") {
-                newType = Task::Type::Day;
-            } else if (newTypeStr == "Week") {
-                newType = Task::Type::Week;
-            } else {
-                newType = Task::Type::LongTerm;
+            std::string newDescription, newDeadline, newTypeStr;  
+            std::chrono::system_clock::time_point newDeadlineTp;
+            Task::Type newType;
+            while (true) {
+                std::cout << "Enter task description: ";
+                std::getline(std::cin, newDescription);
+                if (!newDescription.empty()) {
+                    break;
+                }
+                std::cerr << "Error: Task description cannot be empty. Please enter a description." << std::endl;
             }
-            taskManager.updateTask(description, Task(newDescription, stringToTimePoint(newDeadline), false, newType));
+            while (true) {
+                std::cout << "Enter deadline (YYYY-MM-DD HH:MM): ";
+                std::getline(std::cin, newDeadline);
+                try {
+                    newDeadlineTp = stringToTimePoint(newDeadline);
+                    break;
+                } catch (const std::runtime_error& e) {
+                    std::cerr << "Error: " << e.what() << ". Please enter a valid deadline." << std::endl;
+                }
+            }
+            while (true) {
+                std::cout << "Enter task type (Day/Week/LongTerm): ";
+                std::getline(std::cin, newTypeStr);
+
+                if (newTypeStr == "Day") {
+                    newType = Task::Type::Day;
+                    break;
+                } else if (newTypeStr == "Week") {
+                    newType = Task::Type::Week;
+                    break;
+                } else if (newTypeStr == "LongTerm") {
+                    newType = Task::Type::LongTerm;
+                    break;
+                } else {
+                    std::cerr << "Error: Invalid task type. Choose from Day, Week, LongTerm." << std::endl;
+                }
+            }
+            taskManager.updateTask(taskId, Task(newDescription, newDeadlineTp, newType, false));
         } else if (command == "markComplete") {
-            // Implement mark task as completed logic
+            int taskId;
+            std::cout << "Enter task ID to mark as complete: ";
+            std::cin >> taskId;
+            std::cin.ignore();
+            taskManager.markTaskCompleted(taskId);
         } else if (command == "display") {
             taskManager.displayTasks();
         } else if (command == "displayDue") {
@@ -68,7 +123,25 @@ int main() {
         } else if (command == "removeExpired") {
             taskManager.removeExpiredTasks();
         } else if (command == "adjustDeadline") {
-            // Implement deadline adjustment logic
+            int taskId;
+            std::string newDeadline;
+            std::chrono::system_clock::time_point newDeadlineTp;
+            std::cout << "Enter task ID to adjust deadline: ";
+            std::cin >> taskId;
+            std::cin.ignore();
+
+            while (true) {
+                std::cout << "Enter deadline (YYYY-MM-DD HH:MM): ";
+                std::getline(std::cin, newDeadline);
+                try {
+                    newDeadlineTp = stringToTimePoint(newDeadline);
+                    break;
+                } catch (const std::runtime_error& e) {
+                    std::cerr << "Error: " << e.what() << ". Please enter a valid deadline." << std::endl;
+                }
+            }
+
+            taskManager.adjustTaskDeadline(taskId, newDeadlineTp);
         } else {
             std::cout << "Unknown command. Type 'help' for a list of commands.\n";
         }
@@ -88,4 +161,13 @@ void printHelp() {
               << "  removeExpired - Remove expired tasks\n"
               << "  adjustDeadline - Adjust the deadline of a task\n"
               << "  quit - Exit the program\n";
+}
+
+std::chrono::system_clock::time_point stringToTimePoint(const std::string& dateTime) {
+    std::tm tm = {};
+    char* ret = strptime(dateTime.c_str(), "%Y-%m-%d %H:%M", &tm);
+    if (ret == nullptr) {
+        throw std::runtime_error("Invalid date-time format. Expected format: YYYY-MM-DD HH:MM");
+    }
+    return std::chrono::system_clock::from_time_t(std::mktime(&tm));
 }

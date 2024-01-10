@@ -2,9 +2,10 @@
 
 int Task::nextId = 1;
 Task::Task(const std::string& desc, 
-           const std::chrono::system_clock::time_point& dl, 
-           bool comp, Type t)
-    : description(desc), deadline(dl), completed(comp), type(t), id(nextId++){}
+           const std::chrono::system_clock::time_point& dl,
+           Type t, 
+           bool comp)
+    : description(desc), deadline(dl), type(t), completed(comp), id(nextId++){}
 
 std::string Task::getDescription() const {
     return description;

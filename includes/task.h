@@ -23,7 +23,8 @@ private:
 public:
     Task(const std::string& desc, 
          const std::chrono::system_clock::time_point& dl, 
-         bool comp = false, Type t);
+         Type t,
+         bool comp = false);
 
     std::string getDescription() const;
     void setDescription(const std::string& desc);

@@ -8,30 +8,33 @@ void TaskManager::addTask(const Task& task) {
     tasks.push_back(task);
 }
 
-void TaskManager::removeTask(const std::string& description) {
+void TaskManager::removeTask(int taskId) {
     auto it = std::remove_if(tasks.begin(), tasks.end(),
-                             [&description](const Task& task) {
-                                 return task.getDescription() == description;
+                             [taskId](const Task& task) {
+                                 return task.getId() == taskId;
                              });
     if (it != tasks.end()) {
         tasks.erase(it, tasks.end());
     }
 }
 
-void TaskManager::updateTask(const std::string& description, const Task& updatedTask) {
+void TaskManager::updateTask(int taskId, const Task& updatedTask) {
     auto it = std::find_if(tasks.begin(), tasks.end(),
-                           [&description](const Task& task) {
-                               return task.getDescription() == description;
+                           [taskId](const Task& task) {
+                               return task.getId() == taskId;
                            });
     if (it != tasks.end()) {
-        *it = updatedTask;
+        it->setDescription(updatedTask.getDescription());
+        it->setDeadline(updatedTask.getDeadline());
+        it->setType(updatedTask.getType());
     }
 }
 
-void TaskManager::markTaskCompleted(const std::string& description) {
+
+void TaskManager::markTaskCompleted(int taskId) {
     auto it = std::find_if(tasks.begin(), tasks.end(),
-                           [&description](const Task& task) {
-                               return task.getDescription() == description;
+                           [taskId](const Task& task) {
+                               return task.getId() == taskId;
                            });
     if (it != tasks.end()) {
         it->setCompleted(true);
@@ -53,8 +56,9 @@ void TaskManager::displayTasksByType(Task::Type type) const {
     int taskNumber = 1;
     for (const auto& task : tasks) {
         if (task.getType() == type) {
-            std::cout << " " << taskNumber << ". " << task.getDescription() 
-                      << " - Deadline: " << timePointToString(task.getDeadline()) 
+            std::cout << " " << taskNumber << ". " << task.getDescription()
+                      << " - ID: " << task.getId() 
+                      << ", Deadline: " << timePointToString(task.getDeadline()) 
                       << ", Completed: " << (task.isCompleted() ? "Yes" : "No") << "\n";
             ++taskNumber;
         }
@@ -79,6 +83,7 @@ void TaskManager::displayDueTasks() const {
     for (const auto& task : tasks) {
         if (!task.isCompleted() && isDueSoon(task.getDeadline())) {
             std::cout << " " << taskNumber << ". " << task.getDescription()
+                      << " - ID: " << task.getId()
                       << " - Deadline: " << timePointToString(task.getDeadline())
                       << ", Completed: " << (task.isCompleted() ? "Yes" : "No") << "\n";
             ++taskNumber;
@@ -105,9 +110,9 @@ void TaskManager::removeExpiredTasks() {
     }), tasks.end());
 }
 
-void TaskManager::adjustTaskDeadline(const std::string& description, const std::chrono::system_clock::time_point& newDeadline) {
-    auto it = std::find_if(tasks.begin(), tasks.end(), [&description](const Task& task) {
-        return task.getDescription() == description;
+void TaskManager::adjustTaskDeadline(int taskId, const std::chrono::system_clock::time_point& newDeadline) {
+    auto it = std::find_if(tasks.begin(), tasks.end(), [taskId](const Task& task) {
+        return task.getId() == taskId;
     });
     if (it != tasks.end()) {
         it->setDeadline(newDeadline);
