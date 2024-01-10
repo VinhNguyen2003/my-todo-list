@@ -4,18 +4,19 @@
 #include <sstream>
 #include <chrono>
 
-std::chrono::system_clock::time_point stringToTimePoint(const std::string& dateTime);
 void printHelp();
 
 int main() {
     TaskManager taskManager;
     std::string command;
+    taskManager.loadTasksFromFile("tasks.json");
 
     while (true) {
         std::cout << "> ";
         std::getline(std::cin, command);
 
         if (command == "quit") {
+            taskManager.saveTasksToFile("tasks.json");
             break;
         } else if (command == "help") {
             printHelp();
@@ -35,7 +36,7 @@ int main() {
                 std::cout << "Enter deadline (YYYY-MM-DD HH:MM): ";
                 std::getline(std::cin, deadline);
                 try {
-                    deadlineTp = stringToTimePoint(deadline);
+                    deadlineTp = taskManager.stringToTimePoint(deadline);
                     break;
                 } catch (const std::runtime_error& e) {
                     std::cerr << "Error: " << e.what() << ". Please enter a valid deadline." << std::endl;
@@ -86,7 +87,7 @@ int main() {
                 std::cout << "Enter deadline (YYYY-MM-DD HH:MM): ";
                 std::getline(std::cin, newDeadline);
                 try {
-                    newDeadlineTp = stringToTimePoint(newDeadline);
+                    newDeadlineTp = taskManager.stringToTimePoint(newDeadline);
                     break;
                 } catch (const std::runtime_error& e) {
                     std::cerr << "Error: " << e.what() << ". Please enter a valid deadline." << std::endl;
@@ -134,7 +135,7 @@ int main() {
                 std::cout << "Enter deadline (YYYY-MM-DD HH:MM): ";
                 std::getline(std::cin, newDeadline);
                 try {
-                    newDeadlineTp = stringToTimePoint(newDeadline);
+                    newDeadlineTp = taskManager.stringToTimePoint(newDeadline);
                     break;
                 } catch (const std::runtime_error& e) {
                     std::cerr << "Error: " << e.what() << ". Please enter a valid deadline." << std::endl;
@@ -161,13 +162,4 @@ void printHelp() {
               << "  removeExpired - Remove expired tasks\n"
               << "  adjustDeadline - Adjust the deadline of a task\n"
               << "  quit - Exit the program\n";
-}
-
-std::chrono::system_clock::time_point stringToTimePoint(const std::string& dateTime) {
-    std::tm tm = {};
-    char* ret = strptime(dateTime.c_str(), "%Y-%m-%d %H:%M", &tm);
-    if (ret == nullptr) {
-        throw std::runtime_error("Invalid date-time format. Expected format: YYYY-MM-DD HH:MM");
-    }
-    return std::chrono::system_clock::from_time_t(std::mktime(&tm));
 }

@@ -1,8 +1,4 @@
 #include "task_manager.h"
-#include <iostream>
-#include <algorithm>
-#include <chrono>
-#include <ctime>
 
 void TaskManager::addTask(const Task& task) {
     tasks.push_back(task);
@@ -147,4 +143,48 @@ bool TaskManager::isDueSoon(const std::chrono::system_clock::time_point& deadlin
     auto one_week_later = now + std::chrono::hours(24 * 7);
 
     return (deadline > now && deadline <= one_week_later);
+}
+
+std::chrono::system_clock::time_point TaskManager::stringToTimePoint(const std::string& dateTime) {
+    std::tm tm = {};
+    char* ret = strptime(dateTime.c_str(), "%Y-%m-%d %H:%M", &tm);
+    if (ret == nullptr) {
+        throw std::runtime_error("Invalid date-time format. Expected format: YYYY-MM-DD HH:MM");
+    }
+    return std::chrono::system_clock::from_time_t(std::mktime(&tm));
+}
+
+void TaskManager::saveTasksToFile(const std::string& filename) {
+    nlohmann::json j;
+    for (const auto& task : tasks) {
+        j.push_back({
+            {"id", task.getId()},
+            {"description", task.getDescription()},
+            {"deadline", timePointToString(task.getDeadline())},
+            {"type", static_cast<int>(task.getType())},
+            {"completed", task.isCompleted()}
+        });
+    }
+    std::ofstream file(filename);
+    file << j.dump(4);
+}
+
+void TaskManager::loadTasksFromFile(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file) {
+        return;
+    }
+
+    nlohmann::json j;
+    file >> j;
+
+    for (const auto& item : j) {
+        Task task(
+            item["description"], 
+            stringToTimePoint(item["deadline"]), 
+            static_cast<Task::Type>(item["type"]), 
+            item["completed"]
+        );
+        tasks.push_back(task);
+    }
 }
